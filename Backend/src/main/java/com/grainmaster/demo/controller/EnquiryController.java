@@ -74,9 +74,9 @@ public class EnquiryController {
  
     @PostMapping
     public ResponseEntity<ApiResponse<Enquiry>> submit(@Valid @RequestBody EnquiryRequest req, HttpServletRequest httpReq) {
-        String header = httpReq.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
-            try { req.setUserId(jwtUtil.getUserId(header.substring(7))); } catch (Exception ignored) {}
+        String authHeader = httpReq.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            try { req.setUserId(jwtUtil.getUserId(authHeader.substring(7))); } catch (Exception ignored) {}
         }
         return ResponseEntity.ok(ApiResponse.ok("Enquiry submitted! We'll contact you within 24 hours.", enquiryService.submitEnquiry(req)));
     }

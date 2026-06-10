@@ -18,7 +18,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Entity
+@Entity //marks this class as a database table
 @Table(name = "contacts")
 @Builder
 @AllArgsConstructor

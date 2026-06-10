@@ -1,3 +1,5 @@
+//PRODUCT.JAVA — MAPS TO THE "PRODUCTS" TABLE
+
 package com.grainmaster.demo.Model;
 
 import jakarta.persistence.*;
@@ -31,7 +33,11 @@ public class Product {
  
     @Column(name = "price_per_kg", nullable = false, precision = 10, scale = 2)
     private BigDecimal pricePerKg;
- 
+    
+    //Why BigDecimal? Because it provides better precision for financial calculations, avoiding rounding errors that can 
+    // occur with floating-point types like double. This is especially important for prices and quantities in a grain trading
+    // application where accuracy is crucial.
+    
     @Column(columnDefinition = "TEXT")
     private String description;
  

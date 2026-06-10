@@ -110,7 +110,9 @@ public class EnquiryService {
         return saved;
     }
  
-    public List<Enquiry> getAll()                                          { return enquiryRepository.findAll(); }
+    public List<Enquiry> getAll()                                          {
+        return enquiryRepository.findAll(); 
+    }
     public List<Enquiry> getByUserId(Long userId)                          { return enquiryRepository.findByUserId(userId); }
     public List<Enquiry> getByStatus(Enquiry.EnquiryStatus status)         { return enquiryRepository.findByStatus(status); }
  
@@ -122,3 +124,6 @@ public class EnquiryService {
     }
 }
  
+
+
+
