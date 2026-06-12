@@ -1,3 +1,5 @@
+//DAO - Data Access Object-> methods which are used to interact with DB. @Repository
+
 package com.grainmaster.demo.Repository;
 
 import com.grainmaster.demo.Model.Contact;

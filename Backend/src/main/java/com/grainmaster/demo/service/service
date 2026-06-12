@@ -1,0 +1,27 @@
+@Service
+public class AuthService {
+@Service annotation
+Marks this class as a Spring service bean. Functionally identical to @Component but @Service communicates intent — 
+this class contains business logic, not a web controller or database repository. Spring detects it during component scan 
+and creates one instance managed in the application context.
+
+  @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthenticationManager authManager;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+Dependencies injected by Spring
+Four dependencies the AuthService needs:
+
+userRepository → to save new users and look up existing ones from MySQL
+passwordEncoder → BCryptPasswordEncoder to hash passwords on register and verify on login
+authManager → Spring Security's AuthenticationManager to validate username + password during login
+jwtUtil → to generate the JWT token after successful login
+
+Spring injects all of these automatically. We never write "new UserRepository()" — Spring manages the lifecycle.

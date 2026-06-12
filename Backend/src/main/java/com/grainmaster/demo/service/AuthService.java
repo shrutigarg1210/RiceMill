@@ -6,6 +6,8 @@ import com.grainmaster.demo.dto.*;
 import com.grainmaster.demo.Model.User;
 import com.grainmaster.demo.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.aspectj.lang.annotation.Before;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
  
@@ -17,6 +19,11 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
  
+    //Registration — step 1: check duplicate email
+// Before creating anything, we check if the email is already in the database. existsByEmail() fires a SELECT COUNT(*) — 
+// cheaper than loading the full User object. If the email exists, we throw an exception immediately. The controller's 
+// @ExceptionHandler catches this and returns a 400 Bad Request to the client. Never save first and let the database unique 
+// constraint fail — that gives a cryptic SQL error instead of a clean message.
     public AuthResponse register(RegisterRequest req) {
         if (userRepository.existsByEmail(req.getEmail())) {
             throw new RuntimeException("Email already registered. Please login.");
