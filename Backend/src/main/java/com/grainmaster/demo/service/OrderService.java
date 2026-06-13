@@ -1,92 +1,3 @@
-// package com.grainmaster.demo.service;
-
-// import com.grainmaster.demo.dto.OrderRequest;
-// import com.grainmaster.demo.Model.Order;
-// import com.grainmaster.demo.Model.Product;
-// import com.grainmaster.demo.Repository.OrderRepository;
-// import com.grainmaster.demo.Repository.ProductRepository;
-// import lombok.RequiredArgsConstructor;
-// import lombok.extern.slf4j.Slf4j;
-// import org.springframework.stereotype.Service;
-
-// import java.math.BigDecimal;
-// import java.time.LocalDateTime;
-// import java.time.format.DateTimeFormatter;
-// import java.util.List;
-// import java.util.Random;
-
-// @Service
-// @RequiredArgsConstructor
-// @Slf4j
-// public class OrderService {
-
-//     private final OrderRepository orderRepository;
-//     private final ProductRepository productRepository;
-//     private final EmailService emailService;
-
-//     public Order placeOrder(OrderRequest request) {
-//         // Look up product to get price
-//         Product product = productRepository.findByName(request.getRiceVariety())
-//                 .orElseThrow(() -> new RuntimeException("Product not found: " + request.getRiceVariety()));
-
-//         // Calculate total: pricePerKg × quantityMT × 1000 (convert MT to kg)
-//         BigDecimal totalAmount = product.getPricePerKg()
-//                 .multiply(request.getQuantityMT())
-//                 .multiply(BigDecimal.valueOf(1000));
-
-//         Order order = Order.builder()
-//                 .orderNumber(generateOrderNumber())
-//                 .customerName(request.getCustomerName())
-//                 .customerEmail(request.getCustomerEmail())
-//                 .customerPhone(request.getCustomerPhone())
-//                 .companyName(request.getCompanyName())
-//                 .deliveryAddress(request.getDeliveryAddress())
-//                 .riceVariety(request.getRiceVariety())
-//                 .quantityMT(request.getQuantityMT())
-//                 .pricePerKg(product.getPricePerKg())
-//                 .totalAmount(totalAmount)
-//                 .notes(request.getNotes())
-//                 .status(Order.OrderStatus.PENDING)
-//                 .expectedDelivery(LocalDateTime.now().plusDays(7))
-//                 .build();
-
-//         Order saved = orderRepository.save(order);
-//         log.info("New order placed: #{}", saved.getOrderNumber());
-
-//         emailService.sendOrderConfirmationToCustomer(saved);
-//         emailService.sendOrderAlertToAdmin(saved);
-
-//         return saved;
-//     }
-
-//     public List<Order> getAllOrders() {
-//         return orderRepository.findAll();
-//     }
-
-//     public Order getOrderByNumber(String orderNumber) {
-//         return orderRepository.findByOrderNumber(orderNumber)
-//                 .orElseThrow(() -> new RuntimeException("Order not found: " + orderNumber));
-//     }
-
-//     public List<Order> getOrdersByEmail(String email) {
-//         return orderRepository.findByCustomerEmail(email);
-//     }
-
-//     public Order updateOrderStatus(Long id, Order.OrderStatus status) {
-//         Order order = orderRepository.findById(id)
-//                 .orElseThrow(() -> new RuntimeException("Order not found: " + id));
-//         order.setStatus(status);
-//         return orderRepository.save(order);
-//     }
-
-//     private String generateOrderNumber() {
-//         String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-//         int rand = 1000 + new Random().nextInt(9000);
-//         return "GM-" + date + "-" + rand;
-//     }
-// }
-
-
 package com.grainmaster.demo.service;
  
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -109,7 +20,10 @@ import java.util.Random;
 @RequiredArgsConstructor
 @Slf4j
 public class OrderService {
- 
+
+    // OrderService dependencies
+    //OrderService needs all four repositories because placing an order touches multiple tables: reads cart items, reads products (for stock and price), 
+    // creates an order + order items, clears the cart. All of this must happen atomically — either all of it succeeds or none of it does.
     private final OrderRepository   orderRepository;
     private final ProductRepository productRepository;
     private final EmailService      emailService;

@@ -110,12 +110,17 @@ public class EnquiryService {
         return saved;
     }
  
-    public List<Enquiry> getAll()                                          {
+    public List<Enquiry> getAll(){
         return enquiryRepository.findAll(); 
     }
-    public List<Enquiry> getByUserId(Long userId)                          { return enquiryRepository.findByUserId(userId); }
-    public List<Enquiry> getByStatus(Enquiry.EnquiryStatus status)         { return enquiryRepository.findByStatus(status); }
- 
+    public List<Enquiry> getByUserId(Long userId) {
+        return enquiryRepository.findByUserId(userId);
+    }
+
+    public List<Enquiry> getByStatus(Enquiry.EnquiryStatus status) {
+        return enquiryRepository.findByStatus(status);
+    }
+
     public Enquiry updateStatus(Long id, Enquiry.EnquiryStatus status) {
         Enquiry e = enquiryRepository.findById(id).orElseThrow(() -> new RuntimeException("Enquiry not found"));
         e.setStatus(status);
