@@ -1,6 +1,6 @@
 // src/RiceMillWebsite.jsx — Full website with cart, auth, multi-variety enquiry
 import { useState, useEffect, useRef } from "react";
-import { useAuth } from "./Context/AuthContext";
+import { useAuth } from "./context/AuthContext";
 import { productAPI, orderAPI, enquiryAPI, contactAPI, authAPI } from "./Api/api";
 
 const NAV_LINKS = ["Home","About","Products","Process","Gallery","Contact"];

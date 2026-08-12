@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: auth-service
+            uri: http://localhost:8081
+            predicates:
+              - Path=/auth/**
+
+          - id: product-service
+            uri: http://localhost:8082
+            predicates:
+              - Path=/products/**
+
+          - id: order-service
+            uri: http://localhost:8083
+            predicates:
+              - Path=/orders/**
+          - id: payment-service
+            uri: http://localhost:8084
+            predicates:
+              - Path=/payments/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,mappings
+
+jwt: 
+  secret: mySuperSecretKeyForJwtToken123456789

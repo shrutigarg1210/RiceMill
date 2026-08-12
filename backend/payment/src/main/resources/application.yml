@@ -1,0 +1,21 @@
+server:
+  port: 8084
+
+spring: 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mbrm_payment
+    username: postgres
+    password: postgres
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+jwt: 
+  secret: mySuperSecretKeyForJwtToken123456789
+
+razorpay: 
+  key: rzp_test_TKqFBy0fABM0cv 
+  secret: FO0Cl4W5yHKlD3U0b0WIfYGT
+  webhook-secret: mbrg-webhook-secret9973

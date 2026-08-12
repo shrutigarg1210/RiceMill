@@ -1,39 +1,40 @@
-// import { StrictMode } from 'react'
-// import { createRoot } from 'react-dom/client'
-// import RiceMillWebsite from './RiceMillWebsite'
-// import AdminDashboard from './AdminDashboard'
+// import React from "react";
+// import ReactDOM from "react-dom/client";
 
-// function App() {
-//   const isAdmin = window.location.pathname === '/admin'
-//   return isAdmin ? <AdminDashboard /> : <RiceMillWebsite />
-// }
+// import { BrowserRouter } from "react-router-dom";
+
+// import { AuthProvider } from "./context/AuthContext";
+
+// import AppRoutes from "./routes/AppRoutes";
+
+// import "./styles/theme.css";
+
+// ReactDOM.createRoot(document.getElementById("root")).render(
+//   <React.StrictMode>
+//     <BrowserRouter>
+//       <AuthProvider>
+//         <AppRoutes />
+//       </AuthProvider>
+//     </BrowserRouter>
+//   </React.StrictMode>
+// );
 
 
-// createRoot(document.getElementById('root')).render(
-//   <StrictMode>
-//     <App />
-//   </StrictMode>,
-// )
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 
+import App from "./App";
+import { AuthProvider } from "./context/AuthContext";
 
-// FILE: src/main.jsx
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { AuthProvider } from './Context/AuthContext'
-import RiceMillWebsite from './RiceMillWebsite'
-import AdminDashboard from './AdminDashboard'
+import "./styles/theme.css";
 
-function App() {
-  const path = window.location.pathname;
-  return (
-    <AuthProvider>
-      {path === '/admin' ? <AdminDashboard /> : <RiceMillWebsite />}
-    </AuthProvider>
-  );
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </BrowserRouter>
   </React.StrictMode>
-)
+);

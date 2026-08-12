@@ -1,0 +1,27 @@
+server:
+  port: 8083
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mbrm_order
+    username: postgres
+    password: postgres
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+jwt: 
+  secret: mySuperSecretKeyForJwtToken123456789
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+pricing:
+  gst: 5
+  delivery-charge: 1200
+  free-delivery-above: 50000

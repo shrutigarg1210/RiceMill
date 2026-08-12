@@ -1,143 +1,268 @@
 // FILE: src/context/AuthContext.jsx
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
 
-// ── Safe default value — useAuth() NEVER returns null ──────
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+
 const defaultContext = {
-  user:           null,
-  token:          null,
-  isLoggedIn:     false,
-  isAdmin:        false,
-  login:          () => {},
-  logout:         () => {},
-  cart:           [],
-  addToCart:      () => {},
+  user: null,
+  token: null,
+  isLoggedIn: false,
+  isAdmin: false,
+
+  login: () => {},
+  logout: () => {},
+
+  cart: [],
+  addToCart: () => {},
   removeFromCart: () => {},
-  updateCartQty:  () => {},
-  clearCart:      () => {},
-  cartTotal:      0,
-  cartCount:      0,
+  updateCartQty: () => {},
+  clearCart: () => {},
+
+  cartTotal: 0,
+  cartCount: 0,
 };
 
 const AuthContext = createContext(defaultContext);
 
 export function AuthProvider({ children }) {
-  // ── User & token ───────────────────────────────────────
+  // ============================
+  // Authentication State
+  // ============================
+
   const [user, setUser] = useState(() => {
     try {
       const stored = localStorage.getItem("gm_user");
       return stored ? JSON.parse(stored) : null;
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   });
 
   const [token, setToken] = useState(() => {
-    try { return localStorage.getItem("gm_token") || null; }
-    catch { return null; }
+    try {
+      return localStorage.getItem("gm_token") || null;
+    } catch {
+      return null;
+    }
   });
 
-  // ── Cart ───────────────────────────────────────────────
+  // ============================
+  // Cart State
+  // ============================
+
   const [cart, setCart] = useState(() => {
     try {
       const stored = localStorage.getItem("gm_cart");
       return stored ? JSON.parse(stored) : [];
-    } catch { return []; }
+    } catch {
+      return [];
+    }
   });
 
-  // Persist cart to localStorage whenever it changes
+  // Persist cart
+
   useEffect(() => {
-    try { localStorage.setItem("gm_cart", JSON.stringify(cart)); }
-    catch { /* storage full or unavailable */ }
+    localStorage.setItem("gm_cart", JSON.stringify(cart));
   }, [cart]);
 
-  // ── Auth actions ───────────────────────────────────────
+  // ============================
+  // Login
+  // ============================
+
   const login = useCallback((authData) => {
-    try {
-      const userObj = {
-        name:   authData.name,
-        email:  authData.email,
-        role:   authData.role,
-        userId: authData.userId,
-      };
-      localStorage.setItem("gm_token", authData.token);
-      localStorage.setItem("gm_user",  JSON.stringify(userObj));
-      setToken(authData.token);
-      setUser(userObj);
-    } catch (e) {
-      console.error("Login state error:", e);
-    }
+    const userObj = {
+      name: authData.name,
+      email: authData.email,
+      role: authData.role,
+      userId: authData.userId,
+    };
+
+    localStorage.setItem("gm_token", authData.token);
+    localStorage.setItem("gm_user", JSON.stringify(userObj));
+
+    setToken(authData.token);
+    setUser(userObj);
   }, []);
+
+  // ============================
+  // Logout
+  // ============================
 
   const logout = useCallback(() => {
-    try {
-      localStorage.removeItem("gm_token");
-      localStorage.removeItem("gm_user");
-    } catch { /* ignore */ }
+    localStorage.removeItem("gm_token");
+    localStorage.removeItem("gm_user");
+    localStorage.removeItem("gm_cart");
+
     setToken(null);
     setUser(null);
+    setCart([]);
   }, []);
 
-  // Listen for auto-logout (401 from API interceptor)
+  // ============================
+  // Auto Logout (401)
+  // ============================
+
   useEffect(() => {
     window.addEventListener("gm_logout", logout);
-    return () => window.removeEventListener("gm_logout", logout);
+
+    return () => {
+      window.removeEventListener("gm_logout", logout);
+    };
   }, [logout]);
 
-  // ── Cart actions ───────────────────────────────────────
-  const addToCart = useCallback((product, quantityMT) => {
-    const qty = parseFloat(quantityMT);
-    if (!qty || qty <= 0) return;
+  // ============================
+  // Cart Functions
+  // ============================
+
+const addToCart = useCallback((product, quantityKg) => {
+
+    const qty = Number(quantityKg);
+
+    if (qty < 100) return;
+
     setCart(prev => {
-      const existing = prev.find(i => i.variety === product.name);
-      if (existing) {
-        return prev.map(i =>
-          i.variety === product.name
-            ? { ...i, quantityMT: parseFloat((parseFloat(i.quantityMT) + qty).toFixed(2)) }
-            : i
+
+        const existing = prev.find(
+            item => item.productId === product.id
         );
-      }
-      return [...prev, {
-        variety:    product.name,
-        quantityMT: qty,
-        pricePerKg: parseFloat(product.pricePerKg),
-        icon:       product.icon || "🌾",
-      }];
+
+        if (existing) {
+
+            const newQty = existing.quantityKg + qty;
+
+            if (newQty > product.availableQuantityKg) {
+
+                alert(
+                    `Only ${product.availableQuantityKg} KG available in stock`
+                );
+
+                return prev;
+            }
+
+            return prev.map(item =>
+
+                item.productId === product.id
+
+                    ? {
+                          ...item,
+                          quantityKg: newQty
+                      }
+
+                    : item
+
+            );
+
+        }
+
+        return [
+
+            ...prev,
+
+            {
+                productId: product.id,
+
+                variety: product.variety,
+
+                quantityKg: qty,
+
+                pricePerKg: Number(product.pricePerKg),
+
+                imageUrl: product.imageUrl,
+
+                qualityGrade: product.qualityGrade,
+
+                availableQuantityKg: product.availableQuantityKg
+            }
+
+        ];
+
     });
-  }, []);
 
-  const removeFromCart = useCallback((variety) => {
-    setCart(prev => prev.filter(i => i.variety !== variety));
-  }, []);
+}, []);
 
-  const updateCartQty = useCallback((variety, quantityMT) => {
-    const qty = parseFloat(quantityMT);
-    if (!qty || qty <= 0) {
-      setCart(prev => prev.filter(i => i.variety !== variety));
-      return;
-    }
+
+const removeFromCart = useCallback((productId) => {
+
     setCart(prev =>
-      prev.map(i => i.variety === variety ? { ...i, quantityMT: qty } : i)
+
+        prev.filter(item => item.productId !== productId)
+
     );
+
+}, []);
+
+const updateCartQty = useCallback((productId, qty) => {
+
+    qty = Number(qty);
+
+    if (qty < 100) qty = 100;
+
+    setCart(prev =>
+        prev.map(item => {
+
+            if (item.productId !== productId)
+                return item;
+
+            if (qty > item.availableQuantityKg)
+                qty = item.availableQuantityKg;
+
+            return {
+                ...item,
+                quantityKg: qty
+            };
+        })
+    );
+
+}, []);
+  const clearCart = useCallback(() => {
+    setCart([]);
   }, []);
 
-  const clearCart = useCallback(() => setCart([]), []);
+  // ============================
+  // Derived Values
+  // ============================
 
-  // ── Derived values ─────────────────────────────────────
-  const cartTotal = cart.reduce(
-    (sum, i) => sum + (parseFloat(i.pricePerKg) * parseFloat(i.quantityMT) * 1000), 0
-  );
+const cartTotal = cart.reduce(
+
+    (sum, item) =>
+
+        sum +
+
+        item.pricePerKg *
+
+        item.quantityKg,
+
+    0
+
+);
   const cartCount = cart.length;
+
+  // ============================
+  // Context Value
+  // ============================
 
   const value = {
     user,
     token,
+
     isLoggedIn: !!token,
-    isAdmin:    user?.role === "ADMIN",
+
+    isAdmin: user?.role === "ADMIN",
+
     login,
     logout,
+
     cart,
     addToCart,
     removeFromCart,
     updateCartQty,
     clearCart,
+
     cartTotal,
     cartCount,
   };
@@ -149,14 +274,10 @@ export function AuthProvider({ children }) {
   );
 }
 
-// ── Safe hook — throws helpful error if used outside provider ─
+// ============================
+// Hook
+// ============================
+
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error(
-      "useAuth() must be used inside <AuthProvider>. " +
-      "Make sure AuthProvider wraps your component in main.jsx."
-    );
-  }
-  return context;
+  return useContext(AuthContext);
 }

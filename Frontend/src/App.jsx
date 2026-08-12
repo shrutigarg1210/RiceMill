@@ -1,11 +1,5 @@
-import RiceMillWebsite from './RiceMillWebsite'
+import AppRoutes from "./routes/AppRoutes";
 
-
-function App() {
-  return (
-    <>
-      <RiceMillWebsite />
-    </>
-  )
+export default function App() {
+  return <AppRoutes />;
 }
-export default App
